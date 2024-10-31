@@ -17,9 +17,9 @@ public partial class MovieappContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Data Source=movie-app.c5ueo6sqo8m2.us-east-1.rds.amazonaws.com,1433;Database=movieapp;TrustServerCertificate=true;User ID=admin;Password=KlEmvY4EuPoaq5DDZ22l;");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Data Source=movie-app.c5ueo6sqo8m2.us-east-1.rds.amazonaws.com,1433;Database=movieapp;TrustServerCertificate=true;User ID=admin;Password=KlEmvY4EuPoaq5DDZ22l;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
