@@ -9,9 +9,13 @@ GO
 USE StreamingServiceDB;
 GO
 
+DROP DATABASE movieapp;
+CREATE DATABASE movieapp;
+
 -- User Table for Registration
 CREATE TABLE Users (
     UserID INT IDENTITY(1,1) PRIMARY KEY,
+    FullName VARCHAR(50) NOT NULL,
     Username VARCHAR(50) UNIQUE NOT NULL,
     PasswordHash VARCHAR(50) NOT NULL
 );

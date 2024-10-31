@@ -30,6 +30,10 @@ public partial class MovieappContext : DbContext
             entity.HasIndex(e => e.Username, "UQ__Users__536C85E4A2A802BC").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.FullName)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasDefaultValue("Unknown");
             entity.Property(e => e.PasswordHash)
                 .HasMaxLength(50)
                 .IsUnicode(false);
