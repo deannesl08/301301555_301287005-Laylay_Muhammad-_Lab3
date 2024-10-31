@@ -55,12 +55,30 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login([Bind("UserId,Username,PasswordHash")] User user)
         {
+            //if (ModelState.IsValid)
+            //{
+            //    _context.Add(user);
+            //    await _context.SaveChangesAsync();
+            //    return RedirectToAction(nameof(Index));
+            //}
+
             if (ModelState.IsValid)
             {
-                _context.Add(user);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                // Attempt to find the user in the database
+                var existingUser = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Username == user.Username && u.PasswordHash == user.PasswordHash);
+
+                if (existingUser != null)
+                {
+                    // Successful login, redirect to Index
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                }
             }
+
             return View(user);
         }
 
@@ -75,13 +93,13 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Registration([Bind("UserId,Username,PasswordHash")] User user)
+        public async Task<IActionResult> Registration([Bind("UserId,Username,PasswordHash,FullName")] User user)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(user);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Login));
             }
             return View(user);
         }
