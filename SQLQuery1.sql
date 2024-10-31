@@ -13,7 +13,7 @@ GO
 CREATE TABLE Users (
     UserID INT IDENTITY(1,1) PRIMARY KEY,
     Username VARCHAR(50) UNIQUE NOT NULL,
-    Password VARCHAR(50) NOT NULL
+    PasswordHash VARCHAR(50) NOT NULL
 );
 GO
 
@@ -52,3 +52,5 @@ CREATE TABLE Ratings (
 GO
 
 
+
+-- Scaffold-DbContext "Data Source=movie-app.c5ueo6sqo8m2.us-east-1.rds.amazonaws.com,1433;Database=movieapp;TrustServerCertificate=true;User ID=admin;Password=KlEmvY4EuPoaq5DDZ22l;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
