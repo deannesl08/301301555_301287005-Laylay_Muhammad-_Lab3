@@ -2,6 +2,7 @@ using _301301555_301287005_Laylay_Muhammad__Lab3.Models;
 using Microsoft.EntityFrameworkCore;
 using Amazon.DynamoDBv2;
 using Amazon.S3;
+using Amazon.DynamoDBv2.DataModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,8 @@ builder.Services.AddDbContext<MovieappContext>(options => options.UseSqlServer(
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
 builder.Services.AddAWSService<IAmazonDynamoDB>();
 builder.Services.AddAWSService<IAmazonS3>();
+builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
+
 
 var app = builder.Build();
 
