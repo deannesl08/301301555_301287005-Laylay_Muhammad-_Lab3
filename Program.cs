@@ -1,5 +1,7 @@
 using _301301555_301287005_Laylay_Muhammad__Lab3.Models;
 using Microsoft.EntityFrameworkCore;
+using Amazon.DynamoDBv2;
+using Amazon.S3;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,10 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<MovieappContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("Connection2RDS")));
 
+// Add AWS services
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<IAmazonDynamoDB>();
+builder.Services.AddAWSService<IAmazonS3>();
 
 var app = builder.Build();
 
