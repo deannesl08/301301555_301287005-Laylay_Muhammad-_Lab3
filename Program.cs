@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Amazon.DynamoDBv2;
 using Amazon.S3;
 using Amazon.DynamoDBv2.DataModel;
+using _301301555_301287005_Laylay_Muhammad__Lab3.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +44,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 app.UseSession();
+app.UseMiddleware<SessionCheckMiddleware>();
 app.UseAuthorization();
 
 app.MapControllerRoute(

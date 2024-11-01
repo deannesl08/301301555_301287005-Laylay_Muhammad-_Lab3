@@ -49,6 +49,10 @@ public class MoviesController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(CreateMovie createMovieModel)
     {
+
+        // Get the user id from the session
+        var userId = HttpContext.Session.GetString("UserId");
+
         bool isMovieFileInvalid = createMovieModel.MovieFile == null || createMovieModel.MovieFile.Length == 0;
         Console.WriteLine($"Is movie data Invalid: {isMovieFileInvalid}");
 
@@ -79,7 +83,7 @@ public class MoviesController : Controller
             ReleaseTime = createMovieModel.ReleaseTime,
             Rating = createMovieModel.Rating,
             Comments = new List<Comment>(),
-            UploaderId = "testUser123", // Set uploader ID
+            UploaderId = userId, // Set uploader ID
             MovieHref = "", // Initialize, will be set after upload
             BannerImageHref = "" // Initialize, will be set after upload
         };
@@ -324,9 +328,8 @@ public class MoviesController : Controller
         }
 
         // Get the userId from the session
-        var userId = "testUser123";
-        //var userId = HttpContext.Session.GetString("UserId");
-        
+        var userId = HttpContext.Session.GetString("UserId");
+
         // Check if the userId matches the movie's userId
         if (movie.UploaderId != userId)
         {
