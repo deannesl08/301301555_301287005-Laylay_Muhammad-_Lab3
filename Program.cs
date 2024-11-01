@@ -13,7 +13,7 @@ builder.Services.AddDbContext<MovieappContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("Connection2RDS")));
 
 // Add AWS services
-builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions("AWS"));
 builder.Services.AddAWSService<IAmazonDynamoDB>();
 builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();

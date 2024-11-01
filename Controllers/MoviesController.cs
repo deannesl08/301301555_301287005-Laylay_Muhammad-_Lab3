@@ -292,5 +292,77 @@ public class MoviesController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    // DELETE: Movies/Delete/{id}
+    [HttpGet]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var movie = await _dbContext.LoadAsync<Movie>(id);
+        if (movie == null)
+        {
+            return NotFound();
+        }
+
+        return View(movie);
+    }
+    // DELETE: Movies/Delete/{id}
+    [HttpPost]
+    public async Task<IActionResult> DeleteConfirm(string id)
+    {
+        var movie = await _dbContext.LoadAsync<Movie>(id);
+        if (movie == null)
+        {
+            return NotFound();
+        }
+
+        // Get the userId from the session
+        var userId = "testUser123";
+        //var userId = HttpContext.Session.GetString("UserId");
+        
+        // Check if the userId matches the movie's userId
+        if (movie.UploaderId != userId)
+        {
+            ModelState.AddModelError(string.Empty, "You are not authorized to delete this movie.");
+            return View("Delete", movie); ;
+        }
+
+        try
+        {
+            // Delete the movie file and banner image from S3 if they exist
+            if (!string.IsNullOrEmpty(movie.MovieHref))
+            {
+                var movieFileKey = new Uri(movie.MovieHref).AbsolutePath.TrimStart('/'); // Extract the file key from URL
+                await _s3Client.DeleteObjectAsync("movies-haneef", movieFileKey);
+            }
+
+            if (!string.IsNullOrEmpty(movie.BannerImageHref))
+            {
+                var bannerImageKey = new Uri(movie.BannerImageHref).AbsolutePath.TrimStart('/');
+                await _s3Client.DeleteObjectAsync("movies-haneef", bannerImageKey);
+            }
+
+            // Delete the movie from DynamoDB
+            await _dbContext.DeleteAsync<Movie>(id);
+
+            TempData["SuccessMessage"] = "Movie deleted successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (AmazonS3Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, "S3 Upload Error");
+            return View("Delete", movie); ;
+        }
+        catch (AmazonDynamoDBException ex)
+        {
+            ModelState.AddModelError(string.Empty, "Database Error");
+            return View("Delete", movie); ;
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, "An unexpected error occurred");
+            return View("Delete", movie); ;
+        }
+
+    }
+
 
 }
