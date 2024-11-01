@@ -20,11 +20,9 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Models
         [Range(0, 10, ErrorMessage = "Rating must be between 0 and 10.")]
         public required double Rating { get; set; }
 
-        [Required(ErrorMessage = "Please upload a movie file.")]
-        public required IFormFile MovieFile { get; set; }
+        public IFormFile? MovieFile { get; set; }
 
-        [Required(ErrorMessage = "Please upload a banner image for the movie.")]
-        public IFormFile BannerImageFile { get; set; }
+        public IFormFile? BannerImageFile { get; set; }
 
     }
 

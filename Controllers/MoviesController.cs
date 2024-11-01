@@ -4,11 +4,18 @@ using Microsoft.AspNetCore.Mvc;
 using _301301555_301287005_Laylay_Muhammad__Lab3.Controllers;
 using Amazon.S3;
 using Amazon.S3.Transfer;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
+using Amazon.Runtime;
+
+
 
 public class MoviesController : Controller
 {
     private readonly IDynamoDBContext _dbContext;
     private readonly IAmazonS3 _s3Client;
+
+    private readonly string S3BucketPath = "https://movies-haneef.s3.us-east-1.amazonaws.com/";
 
 
     public MoviesController(IDynamoDBContext dbContext, IAmazonS3 s3Client)
@@ -89,7 +96,7 @@ public class MoviesController : Controller
             }
 
             // Generate the S3 URL after successful movie file upload
-            movie.MovieHref = $"https://{_s3Client.Config.RegionEndpoint.SystemName}.amazonaws.com/movies-haneef/{movieUploadKey}";
+            movie.MovieHref = $"{S3BucketPath}{movieUploadKey}";
         }
         catch (AmazonS3Exception ex)
         {
@@ -122,7 +129,7 @@ public class MoviesController : Controller
             }
 
             // Generate the S3 URL after successful banner image upload
-            movie.BannerImageHref = $"https://{_s3Client.Config.RegionEndpoint.SystemName}.amazonaws.com/movies-haneef/{bannerUploadKey}";
+            movie.BannerImageHref = $"{S3BucketPath}{bannerUploadKey}";
         }
         catch (AmazonS3Exception ex)
         {
@@ -150,6 +157,120 @@ public class MoviesController : Controller
         }
 
         // Redirect to the index action
+        return RedirectToAction(nameof(Index));
+    }
+
+    // GET: Movies/Edit/{id}
+    [HttpGet]
+    public async Task<IActionResult> Edit(string id)
+    {
+        var movie = await _dbContext.LoadAsync<Movie>(id);
+        if (movie == null)
+        {
+            return NotFound();
+        }
+
+        // Map Movie data to CreateMovie model for editing
+        var editMovieModel = new CreateMovie
+        {
+            Title = movie.Title,
+            Genre = movie.Genre,
+            Director = movie.Director,
+            ReleaseTime = movie.ReleaseTime,
+            Rating = movie.Rating,
+            MovieFile = null,
+            BannerImageFile = null 
+        };
+
+        return View(editMovieModel);
+    }
+
+    // POST: Movies/Edit/{id}
+    [HttpPost]
+    public async Task<IActionResult> Edit(string id, CreateMovie editMovieModel)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(editMovieModel);
+        }
+
+        var movie = await _dbContext.LoadAsync<Movie>(id);
+        if (movie == null)
+        {
+            ModelState.AddModelError(string.Empty, "Movie not found.");
+            return View(editMovieModel);
+        }
+
+        // Update movie details
+        movie.Title = editMovieModel.Title;
+        movie.Genre = editMovieModel.Genre;
+        movie.Director = editMovieModel.Director;
+        movie.ReleaseTime = editMovieModel.ReleaseTime;
+        movie.Rating = editMovieModel.Rating;
+
+        try
+        {
+            // Handle movie file upload if provided
+            if (editMovieModel.MovieFile != null)
+            {
+                var movieFileKey = $"movies/{editMovieModel.MovieFile.FileName}";
+                using (var stream = editMovieModel.MovieFile.OpenReadStream())
+                {
+                    var uploadRequest = new TransferUtilityUploadRequest
+                    {
+                        InputStream = stream,
+                        Key = movieFileKey,
+                        BucketName = "movies-haneef"
+                    };
+
+                    var transferUtility = new Amazon.S3.Transfer.TransferUtility(_s3Client);
+                    await transferUtility.UploadAsync(uploadRequest);
+                }
+
+                // Update MovieHref with the new file URL
+                movie.MovieHref = $"{S3BucketPath}{movieFileKey}";
+            }
+
+            // Handle banner image upload if provided
+            if (editMovieModel.BannerImageFile != null)
+            {
+                var bannerImageKey = $"movies-banner/{editMovieModel.BannerImageFile.FileName}";
+                using (var stream = editMovieModel.BannerImageFile.OpenReadStream())
+                {
+                    var uploadRequest = new TransferUtilityUploadRequest
+                    {
+                        InputStream = stream,
+                        Key = bannerImageKey,
+                        BucketName = "movies-haneef"
+                    };
+
+                    var transferUtility = new Amazon.S3.Transfer.TransferUtility(_s3Client);
+                    await transferUtility.UploadAsync(uploadRequest);
+                }
+
+                // Update BannerImageHref with the new file URL
+                movie.BannerImageHref = $"{S3BucketPath}{bannerImageKey}";
+            }
+
+            // Save updated movie data
+            await _dbContext.SaveAsync(movie);
+        }
+        catch (AmazonS3Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, $"S3 Upload Error");
+            return View(editMovieModel);
+        }
+        catch (AmazonDynamoDBException ex)
+        {
+            ModelState.AddModelError(string.Empty, $"Database Error");
+            return View(editMovieModel);
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, $"An unexpected error occurred");
+            return View(editMovieModel);
+        }
+
         return RedirectToAction(nameof(Index));
     }
 
