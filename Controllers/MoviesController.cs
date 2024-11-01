@@ -8,8 +8,6 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Runtime;
 
-
-
 public class MoviesController : Controller
 {
     private readonly IDynamoDBContext _dbContext;
@@ -88,7 +86,7 @@ public class MoviesController : Controller
                     InputStream = stream,
                     Key = movieUploadKey,
                     BucketName = "movies-haneef",
-                    CannedACL = S3CannedACL.NoACL // Ensure ACLs are compatible with bucket policy
+                    CannedACL = S3CannedACL.PublicRead
                 };
 
                 var transferUtility = new Amazon.S3.Transfer.TransferUtility(_s3Client); // Use DI-injected _s3Client
@@ -122,7 +120,7 @@ public class MoviesController : Controller
                     InputStream = stream,
                     Key = bannerUploadKey,
                     BucketName = "movies-haneef",
-                    CannedACL = S3CannedACL.NoACL // Ensure ACLs are compatible with bucket policy
+                    CannedACL = S3CannedACL.PublicRead
                 };
                 var transferUtility = new Amazon.S3.Transfer.TransferUtility(_s3Client); // Use DI-injected _s3Client
                 await transferUtility.UploadAsync(uploadRequest);
@@ -170,6 +168,9 @@ public class MoviesController : Controller
             return NotFound();
         }
 
+        ViewBag.MovieHref = movie.MovieHref;
+        ViewBag.BannerImageHref = movie.BannerImageHref;
+
         // Map Movie data to CreateMovie model for editing
         var editMovieModel = new CreateMovie
         {
@@ -213,6 +214,14 @@ public class MoviesController : Controller
             // Handle movie file upload if provided
             if (editMovieModel.MovieFile != null)
             {
+                // Check if there's an existing movie file and delete it
+                if (!string.IsNullOrEmpty(movie.MovieHref))
+                {
+
+                    var existingMovieKey = new Uri(movie.MovieHref).AbsolutePath.TrimStart('/'); // Get the full key path
+                    await _s3Client.DeleteObjectAsync("movies-haneef", existingMovieKey);
+                }
+
                 var movieFileKey = $"movies/{editMovieModel.MovieFile.FileName}";
                 using (var stream = editMovieModel.MovieFile.OpenReadStream())
                 {
@@ -220,7 +229,8 @@ public class MoviesController : Controller
                     {
                         InputStream = stream,
                         Key = movieFileKey,
-                        BucketName = "movies-haneef"
+                        BucketName = "movies-haneef",
+                        CannedACL = S3CannedACL.PublicRead
                     };
 
                     var transferUtility = new Amazon.S3.Transfer.TransferUtility(_s3Client);
@@ -234,6 +244,13 @@ public class MoviesController : Controller
             // Handle banner image upload if provided
             if (editMovieModel.BannerImageFile != null)
             {
+                // Check if there's an existing banner image and delete it
+                if (!string.IsNullOrEmpty(movie.BannerImageHref))
+                {
+                    var existingBannerKey = new Uri(movie.BannerImageHref).AbsolutePath.TrimStart('/'); // Get the full key path
+                    await _s3Client.DeleteObjectAsync("movies-haneef", existingBannerKey);
+                }
+
                 var bannerImageKey = $"movies-banner/{editMovieModel.BannerImageFile.FileName}";
                 using (var stream = editMovieModel.BannerImageFile.OpenReadStream())
                 {
@@ -241,7 +258,8 @@ public class MoviesController : Controller
                     {
                         InputStream = stream,
                         Key = bannerImageKey,
-                        BucketName = "movies-haneef"
+                        BucketName = "movies-haneef",
+                        CannedACL = S3CannedACL.PublicRead
                     };
 
                     var transferUtility = new Amazon.S3.Transfer.TransferUtility(_s3Client);
@@ -257,17 +275,17 @@ public class MoviesController : Controller
         }
         catch (AmazonS3Exception ex)
         {
-            ModelState.AddModelError(string.Empty, $"S3 Upload Error");
+            ModelState.AddModelError(string.Empty, $"S3 Upload Error: {ex.Message}");
             return View(editMovieModel);
         }
         catch (AmazonDynamoDBException ex)
         {
-            ModelState.AddModelError(string.Empty, $"Database Error");
+            ModelState.AddModelError(string.Empty, $"Database Error: {ex.Message}");
             return View(editMovieModel);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError(string.Empty, $"An unexpected error occurred");
+            ModelState.AddModelError(string.Empty, $"An unexpected error occurred: {ex.Message}");
             return View(editMovieModel);
         }
 

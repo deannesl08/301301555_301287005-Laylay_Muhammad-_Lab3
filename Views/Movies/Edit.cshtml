@@ -43,11 +43,19 @@
         <div class="mb-3">
             <label for="MovieFile" class="form-label">Upload New Movie (Optional)</label>
             <input type="file" asp-for="MovieFile" class="form-control" />
+            @if (!string.IsNullOrEmpty(ViewBag.MovieHref))
+            {
+                <p>Current Movie: <a href="@ViewBag.MovieHref" target="_blank">View</a></p>
+            }
         </div>
 
         <div class="mb-3">
             <label for="BannerImageFile" class="form-label">Upload New Banner Image (Optional)</label>
             <input type="file" asp-for="BannerImageFile" class="form-control" />
+            @if (!string.IsNullOrEmpty(ViewBag.BannerImageHref))
+            {
+                <p>Current Movie: <a href="@ViewBag.BannerImageHref" target="_blank">View</a></p>
+            }
         </div>
 
         <button type="submit" class="btn btn-primary">Save Changes</button>
