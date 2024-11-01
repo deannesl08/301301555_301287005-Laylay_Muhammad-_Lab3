@@ -53,7 +53,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login([Bind("Username,PasswordHash")] User user)
+        public async Task<IActionResult> Login([Bind("UserId,Username,PasswordHash")] User user)
         {
             //if (ModelState.IsValid)
             //{
@@ -134,7 +134,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserId,Username,PasswordHash")] User user)
+        public async Task<IActionResult> Edit(int id, [Bind("Username,PasswordHash")] User user)
         {
             if (id != user.UserId)
             {
