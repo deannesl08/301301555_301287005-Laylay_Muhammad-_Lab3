@@ -31,20 +31,19 @@ public class MoviesController : Controller
         return View();
     }
 
-[HttpPost]
+    // POST: Movies/Create
+    [HttpPost]
     public async Task<IActionResult> Create(CreateMovie createMovieModel)
     {
         bool isMovieFileInvalid = createMovieModel.MovieFile == null || createMovieModel.MovieFile.Length == 0;
         Console.WriteLine($"Is movie data Invalid: {isMovieFileInvalid}");
 
-        // Check if the file is uploaded
-        if (createMovieModel.MovieFile == null || createMovieModel.MovieFile.Length == 0)
+        // Check if the movie file and banner image file are uploaded
+        if (isMovieFileInvalid)
         {
             ModelState.AddModelError("MovieFile", "Please upload a movie file.");
-            return View(createMovieModel);
         }
 
-        // Check if the banner image is uploaded
         if (createMovieModel.BannerImageFile == null || createMovieModel.BannerImageFile.Length == 0)
         {
             ModelState.AddModelError("BannerImageFile", "Please upload a banner image file.");
@@ -67,45 +66,88 @@ public class MoviesController : Controller
             Rating = createMovieModel.Rating,
             Comments = new List<Comment>(),
             UploaderId = "testUser123", // Set uploader ID
-            MovieHref = "" // Initialize, will be set after upload
+            MovieHref = "", // Initialize, will be set after upload
+            BannerImageHref = "" // Initialize, will be set after upload
         };
 
-        // Proceed to upload the movie file to S3
-        var uploadKey = $"movies/{createMovieModel.MovieFile.FileName}";
-        using (var stream = createMovieModel.MovieFile.OpenReadStream())
+        try
         {
-            var uploadRequest = new TransferUtilityUploadRequest
+            // Proceed to upload the movie file to S3
+            var movieUploadKey = $"movies/{createMovieModel.MovieFile.FileName}";
+            using (var stream = createMovieModel.MovieFile.OpenReadStream())
             {
-                InputStream = stream,
-                Key = uploadKey,
-                BucketName = "movies-haneef",
-            };
+                var uploadRequest = new TransferUtilityUploadRequest
+                {
+                    InputStream = stream,
+                    Key = movieUploadKey,
+                    BucketName = "movies-haneef",
+                    CannedACL = S3CannedACL.NoACL // Ensure ACLs are compatible with bucket policy
+                };
 
-            var transferUtility = new Amazon.S3.Transfer.TransferUtility(_s3Client); // Use DI-injected _s3Client
-            await transferUtility.UploadAsync(uploadRequest);
+                var transferUtility = new Amazon.S3.Transfer.TransferUtility(_s3Client); // Use DI-injected _s3Client
+                await transferUtility.UploadAsync(uploadRequest);
+            }
+
+            // Generate the S3 URL after successful movie file upload
+            movie.MovieHref = $"https://{_s3Client.Config.RegionEndpoint.SystemName}.amazonaws.com/movies-haneef/{movieUploadKey}";
+        }
+        catch (AmazonS3Exception ex)
+        {
+            Console.WriteLine($"Error uploading movie file: {ex.Message}");
+            ModelState.AddModelError("MovieFile", "An error occurred while uploading the movie file. Please try again.");
+            return View(createMovieModel);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unexpected error: {ex.Message}");
+            ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again.");
+            return View(createMovieModel);
         }
 
-        // Generate the S3 URL after successful upload
-        movie.MovieHref = $"https://{_s3Client.Config.RegionEndpoint.SystemName}.amazonaws.com/movies-haneef/{uploadKey}";
-
-        var bannerImageFileKey = $"movies-banner/{createMovieModel.BannerImageFile.FileName}";
-        using (var stream = createMovieModel.BannerImageFile.OpenReadStream())
+        try
         {
-            var uploadRequest = new Amazon.S3.Transfer.TransferUtilityUploadRequest
+            // Upload banner image to S3
+            var bannerUploadKey = $"movies-banner/{createMovieModel.BannerImageFile.FileName}";
+            using (var stream = createMovieModel.BannerImageFile.OpenReadStream())
             {
-                InputStream = stream,
-                Key = bannerImageFileKey,
-                BucketName = "movies-haneef",
-            };
-            var transferUtility = new Amazon.S3.Transfer.TransferUtility(_s3Client); // Use DI-injected _s3Client
-            await transferUtility.UploadAsync(uploadRequest);
+                var uploadRequest = new Amazon.S3.Transfer.TransferUtilityUploadRequest
+                {
+                    InputStream = stream,
+                    Key = bannerUploadKey,
+                    BucketName = "movies-haneef",
+                    CannedACL = S3CannedACL.NoACL // Ensure ACLs are compatible with bucket policy
+                };
+                var transferUtility = new Amazon.S3.Transfer.TransferUtility(_s3Client); // Use DI-injected _s3Client
+                await transferUtility.UploadAsync(uploadRequest);
+            }
+
+            // Generate the S3 URL after successful banner image upload
+            movie.BannerImageHref = $"https://{_s3Client.Config.RegionEndpoint.SystemName}.amazonaws.com/movies-haneef/{bannerUploadKey}";
+        }
+        catch (AmazonS3Exception ex)
+        {
+            Console.WriteLine($"Error uploading banner image: {ex.Message}");
+            ModelState.AddModelError("BannerImageFile", "An error occurred while uploading the banner image. Please try again.");
+            return View(createMovieModel);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unexpected error: {ex.Message}");
+            ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again.");
+            return View(createMovieModel);
         }
 
-        movie.BannerImageHref = $"https://{_s3Client.Config.RegionEndpoint.SystemName}.amazonaws.com/movies-haneef/{bannerImageFileKey}";
-
-
-        // Save movie data to DynamoDB
-        await _dbContext.SaveAsync(movie);
+        try
+        {
+            // Save movie data to DynamoDB
+            await _dbContext.SaveAsync(movie);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving movie data to database: {ex.Message}");
+            ModelState.AddModelError(string.Empty, "An error occurred while saving the movie data. Please try again.");
+            return View(createMovieModel);
+        }
 
         // Redirect to the index action
         return RedirectToAction(nameof(Index));
