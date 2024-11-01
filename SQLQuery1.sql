@@ -1,16 +1,9 @@
-﻿-- Create Database
-IF EXISTS(SELECT * from sys.databases WHERE name='StreamingServiceDB')
-BEGIN
-    DROP DATABASE StreamingServiceDB;
-END
-CREATE DATABASE StreamingServiceDB;
-GO
+﻿
 
 USE StreamingServiceDB;
 GO
 
-DROP DATABASE movieapp;
-CREATE DATABASE movieapp;
+USE movieapp;
 
 -- User Table for Registration
 CREATE TABLE Users (
@@ -19,31 +12,11 @@ CREATE TABLE Users (
     Username VARCHAR(50) UNIQUE NOT NULL,
     PasswordHash VARCHAR(50) NOT NULL
 );
-GO
 
--- Movie Table (Metadata stored in DynamoDB, but SQL table can be used for relational information)
-CREATE TABLE Movies (
-    MovieID INT IDENTITY(1,1) PRIMARY KEY,
-    Title VARCHAR(100) NOT NULL,
-    Genre VARCHAR(50) NOT NULL,
-    Director VARCHAR(100),
-    ReleaseDate DATE,
-    S3Path VARCHAR(255) NOT NULL,  -- S3 Path for the movie file
-    UploadedBy INT FOREIGN KEY REFERENCES Users(UserID),
-    UploadDate DATETIME DEFAULT GETDATE()
-);
-GO
+USE movieapp;
+ALTER TABLE Users ADD UserID INT IDENTITY(1,1) PRIMARY KEY;
 
--- Comments Table
-CREATE TABLE Comments (
-    CommentID INT IDENTITY(1,1) PRIMARY KEY,
-    MovieID INT FOREIGN KEY REFERENCES Movies(MovieID) ON DELETE CASCADE,
-    UserID INT FOREIGN KEY REFERENCES Users(UserID) ON DELETE CASCADE,
-    CommentText VARCHAR(500) NOT NULL,
-    CommentDate DATETIME DEFAULT GETDATE(),
-    LastModified DATETIME
-);
-GO
+
 
 -- Rating Table
 CREATE TABLE Ratings (

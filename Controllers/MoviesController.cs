@@ -17,6 +17,15 @@ public class MoviesController : Controller
     {
         // Retrieve the list of movies from DynamoDB
         var movies = await _dbContext.ScanAsync<Movie>(new List<ScanCondition>()).GetRemainingAsync();
+
+        var username = HttpContext.Session.GetString("Username");
+        var userId = HttpContext.Session.GetInt32("UserId");
+
+
+        // Print the username and user ID to the console
+        Console.WriteLine($"User ID: {userId}");
+        Console.WriteLine($"Username: {username}");
+
         return View(movies);
     }
 

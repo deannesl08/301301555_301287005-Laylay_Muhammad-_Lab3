@@ -18,6 +18,15 @@ builder.Services.AddAWSService<IAmazonDynamoDB>();
 builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
 
+// Add distributed memory cache for session storage
+builder.Services.AddDistributedMemoryCache(); // Required for session management
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Set session timeout
+    options.Cookie.HttpOnly = true; // Make cookie HTTP only
+    options.Cookie.IsEssential = true; // Make the session cookie essential
+});
+
 
 var app = builder.Build();
 
@@ -33,7 +42,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseSession();
 app.UseAuthorization();
 
 app.MapControllerRoute(

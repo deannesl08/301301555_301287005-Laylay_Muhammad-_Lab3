@@ -55,12 +55,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login([Bind("Username,PasswordHash")] LoginUser user)
         {
-            //if (ModelState.IsValid)
-            //{
-            //    _context.Add(user);
-            //    await _context.SaveChangesAsync();
-            //    return RedirectToAction(nameof(Index));
-            //}
+
 
             if (ModelState.IsValid)
             {
@@ -70,17 +65,46 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
 
                 if (existingUser != null)
                 {
-                    // Successful login, redirect to Index
-                    return RedirectToAction(nameof(Index));
+                    //// Successful login, redirect to Index
+                    //return RedirectToAction(nameof(Index));
+
+
+                    // Successful login, store user information in session if needed
+                    HttpContext.Session.SetString("Username", existingUser.Username);
+                    HttpContext.Session.SetInt32("UserId", existingUser.UserId);
+
+                    Console.WriteLine("Login successful!");
+
+                    // Redirect to the Movie controller's Index action
+                    return RedirectToAction("Index", "Movies");
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt!");
                 }
             }
 
             return View(user);
         }
+
+        // GET: Users/Logout
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear(); // Clear the session
+
+            var username = HttpContext.Session.GetString("Username");
+            var userId = HttpContext.Session.GetString("UserId");
+
+
+            // Print the username and user ID to the console
+            Console.WriteLine($"Successfully logout!");
+
+            Console.WriteLine($"User ID: {userId}");
+            Console.WriteLine($"Username: {username}");
+
+            return RedirectToAction("Index", "Home"); // Redirect to home or any other page
+        }
+
 
         // GET: Users/Registration
         public IActionResult Registration()
@@ -96,7 +120,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
         public async Task<IActionResult> Registration([Bind("UserId,Username,PasswordHash,FullName")] User user)
         {
             if (ModelState.IsValid)
-            {
+            {   
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Login));
