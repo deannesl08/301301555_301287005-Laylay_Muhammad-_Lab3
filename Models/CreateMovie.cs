@@ -22,6 +22,10 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Models
 
         [Required(ErrorMessage = "Please upload a movie file.")]
         public required IFormFile MovieFile { get; set; }
+
+        [Required(ErrorMessage = "Please upload a banner image for the movie.")]
+        public IFormFile BannerImageFile { get; set; }
+
     }
 
 }

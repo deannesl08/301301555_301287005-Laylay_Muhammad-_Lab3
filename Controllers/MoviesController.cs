@@ -44,6 +44,12 @@ public class MoviesController : Controller
             return View(createMovieModel);
         }
 
+        // Check if the banner image is uploaded
+        if (createMovieModel.BannerImageFile == null || createMovieModel.BannerImageFile.Length == 0)
+        {
+            ModelState.AddModelError("BannerImageFile", "Please upload a banner image file.");
+        }
+
         // Check if the model state is valid
         if (!ModelState.IsValid)
         {
@@ -81,6 +87,22 @@ public class MoviesController : Controller
 
         // Generate the S3 URL after successful upload
         movie.MovieHref = $"https://{_s3Client.Config.RegionEndpoint.SystemName}.amazonaws.com/movies-haneef/{uploadKey}";
+
+        var bannerImageFileKey = $"movies-banner/{createMovieModel.BannerImageFile.FileName}";
+        using (var stream = createMovieModel.BannerImageFile.OpenReadStream())
+        {
+            var uploadRequest = new Amazon.S3.Transfer.TransferUtilityUploadRequest
+            {
+                InputStream = stream,
+                Key = bannerImageFileKey,
+                BucketName = "movies-haneef",
+            };
+            var transferUtility = new Amazon.S3.Transfer.TransferUtility(_s3Client); // Use DI-injected _s3Client
+            await transferUtility.UploadAsync(uploadRequest);
+        }
+
+        movie.BannerImageHref = $"https://{_s3Client.Config.RegionEndpoint.SystemName}.amazonaws.com/movies-haneef/{bannerImageFileKey}";
+
 
         // Save movie data to DynamoDB
         await _dbContext.SaveAsync(movie);

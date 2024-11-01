@@ -25,6 +25,8 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Models
 
         public string MovieHref { get; set; }
 
+        public string BannerImageHref { get; set; }
+
         // Rating attribute for secondary index
         public double Rating { get; set; }
 
