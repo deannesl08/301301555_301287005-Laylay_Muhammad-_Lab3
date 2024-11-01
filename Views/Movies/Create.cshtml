@@ -1,4 +1,4 @@
-﻿@model _301301555_301287005_Laylay_Muhammad__Lab3.Models.Movie
+﻿@model _301301555_301287005_Laylay_Muhammad__Lab3.Models.CreateMovie
 
 @{
     ViewData["Title"] = "Add Movie";
@@ -7,7 +7,7 @@
 <div class="container mt-5">
     <h1 class="text-center">Add New Movie</h1>
 
-    <form asp-action="Create" method="post">
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
         @Html.AntiForgeryToken()
 
         <div class="mb-3">
@@ -41,10 +41,10 @@
         </div>
 
         <div class="mb-3">
-            <label asp-for="UploaderId" class="form-label"></label>
-            <input asp-for="UploaderId" class="form-control" />
-            <span asp-validation-for="UploaderId" class="text-danger"></span>
+            <label for="MovieFile" class="form-label">Upload Movie</label>
+            <input type="file" name="MovieFile" class="form-control" />
         </div>
+
 
         <button type="submit" class="btn btn-primary">Add Movie</button>
     </form>
