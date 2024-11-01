@@ -1,13 +1,13 @@
-﻿@model _301301555_301287005_Laylay_Muhammad__Lab3.Models.CreateMovie
+﻿@model CreateMovie
 
 @{
-    ViewData["Title"] = "Add Movie";
+    ViewData["Title"] = "Edit Movie";
 }
 
 <div class="container mt-5">
-    <h1 class="text-center">Add New Movie</h1>
+    <h1 class="text-center">Edit Movie</h1>
 
-    <form asp-action="Create" method="post" enctype="multipart/form-data">
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
         @Html.AntiForgeryToken()
 
         <div class="mb-3">
@@ -41,20 +41,24 @@
         </div>
 
         <div class="mb-3">
-            <label for="MovieFile" class="form-label">Upload Movie</label>
-            <input type="file" name="MovieFile" class="form-control" />
-            <span asp-validation-for="MovieFile" class="text-danger"></span>
+            <label for="MovieFile" class="form-label">Upload New Movie (Optional)</label>
+            <input type="file" asp-for="MovieFile" class="form-control" />
+            @if (!string.IsNullOrEmpty(ViewBag.MovieHref))
+            {
+                <p>Current Movie: <a href="@ViewBag.MovieHref" target="_blank">View</a></p>
+            }
         </div>
-
 
         <div class="mb-3">
-            <label for="BannerImageFile" class="form-label">Upload Banner Image</label>
-            <input type="file" name="BannerImageFile" class="form-control" />
-            <span asp-validation-for="BannerImageFile" class="text-danger"></span>
+            <label for="BannerImageFile" class="form-label">Upload New Banner Image (Optional)</label>
+            <input type="file" asp-for="BannerImageFile" class="form-control" />
+            @if (!string.IsNullOrEmpty(ViewBag.BannerImageHref))
+            {
+                <p>Current Movie: <a href="@ViewBag.BannerImageHref" target="_blank">View</a></p>
+            }
         </div>
 
-
-        <button type="submit" class="btn btn-primary">Add Movie</button>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
     </form>
 </div>
 
