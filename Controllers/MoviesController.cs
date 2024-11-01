@@ -78,7 +78,7 @@ public class MoviesController : Controller
         try
         {
             // Proceed to upload the movie file to S3
-            var movieUploadKey = $"movies/{createMovieModel.MovieFile.FileName}";
+            var movieUploadKey = $"movies/{movie.MovieId}-{createMovieModel.MovieFile.FileName}";
             using (var stream = createMovieModel.MovieFile.OpenReadStream())
             {
                 var uploadRequest = new TransferUtilityUploadRequest
@@ -112,7 +112,7 @@ public class MoviesController : Controller
         try
         {
             // Upload banner image to S3
-            var bannerUploadKey = $"movies-banner/{createMovieModel.BannerImageFile.FileName}";
+            var bannerUploadKey = $"movies-banner/{movie.MovieId}-{createMovieModel.BannerImageFile.FileName}";
             using (var stream = createMovieModel.BannerImageFile.OpenReadStream())
             {
                 var uploadRequest = new Amazon.S3.Transfer.TransferUtilityUploadRequest
@@ -222,7 +222,7 @@ public class MoviesController : Controller
                     await _s3Client.DeleteObjectAsync("movies-haneef", existingMovieKey);
                 }
 
-                var movieFileKey = $"movies/{editMovieModel.MovieFile.FileName}";
+                var movieFileKey = $"movies/{movie.MovieId}-{editMovieModel.MovieFile.FileName}";
                 using (var stream = editMovieModel.MovieFile.OpenReadStream())
                 {
                     var uploadRequest = new TransferUtilityUploadRequest
@@ -251,7 +251,7 @@ public class MoviesController : Controller
                     await _s3Client.DeleteObjectAsync("movies-haneef", existingBannerKey);
                 }
 
-                var bannerImageKey = $"movies-banner/{editMovieModel.BannerImageFile.FileName}";
+                var bannerImageKey = $"movies-banner/{movie.MovieId}-{editMovieModel.BannerImageFile.FileName}";
                 using (var stream = editMovieModel.BannerImageFile.OpenReadStream())
                 {
                     var uploadRequest = new TransferUtilityUploadRequest
