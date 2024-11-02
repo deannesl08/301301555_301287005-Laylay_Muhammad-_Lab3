@@ -7,10 +7,10 @@
         // Define excluded paths within the middleware
         private readonly string[] _excludedPaths = new[]
         {
-        "/",
+        "/Home/Index",
         "/Users/Login",
         "/Users/Register"
-    };
+        };
 
         public SessionCheckMiddleware(RequestDelegate next)
         {

@@ -27,8 +27,11 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Models
 
         public string BannerImageHref { get; set; }
 
-        // Rating attribute for secondary index
+        // Rating attribute for secondary index, stores the avg. rating value
         public double Rating { get; set; }
+
+        public List<double> Ratings { get; set; } = new List<double>();
+
 
         // List of comments (map or list of maps in DynamoDB)
         public List<Comment> Comments { get; set; } = new List<Comment>();

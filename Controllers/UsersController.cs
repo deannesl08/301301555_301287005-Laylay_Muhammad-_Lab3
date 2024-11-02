@@ -106,18 +106,18 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
         }
 
 
-        // GET: Users/Registration
-        public IActionResult Registration()
+        // GET: Users/Register
+        public IActionResult Register()
         {
             return View();
         }
 
-        // POST: Users/Registration
+        // POST: Users/Register
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Registration([Bind("UserId,Username,PasswordHash,FullName")] User user)
+        public async Task<IActionResult> Register([Bind("UserId,Username,PasswordHash,FullName")] User user)
         {
             if (ModelState.IsValid)
             {   

@@ -31,24 +31,9 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
             return View(allMovies);
         }
 
-        public async Task<IActionResult> Movie(string movieId)
-        {
-            // Fetch the movie from DynamoDB using the MovieId
-            var movie = await _dbContext.LoadAsync<Movie>(movieId);
-            if (movie == null)
-            {
-                return NotFound();
-            }
 
-            // Construct the full S3 URL for the movie file
-            var movieUrl = movie.MovieHref;
 
-            ViewBag.MovieUrl = movieUrl; // Pass the movie URL to the view
-            return View(movie);
-        }
-    
-
-    public IActionResult Privacy()
+        public IActionResult Privacy()
         {
             return View();
         }
