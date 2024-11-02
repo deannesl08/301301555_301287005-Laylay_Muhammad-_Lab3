@@ -71,12 +71,13 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
 
                     // Successful login, store user information in session if needed
                     HttpContext.Session.SetString("Username", existingUser.Username);
+                    HttpContext.Session.SetString("FullName", existingUser.FullName);
                     HttpContext.Session.SetInt32("UserId", existingUser.UserId);
 
                     Console.WriteLine("Login successful!");
 
                     // Redirect to the Movie controller's Index action
-                    return RedirectToAction("Index", "ManageMovies");
+                    return RedirectToAction("Index", "Home");
                 }
                 else
                 {
@@ -106,18 +107,18 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
         }
 
 
-        // GET: Users/Registration
-        public IActionResult Registration()
+        // GET: Users/Register
+        public IActionResult Register()
         {
             return View();
         }
 
-        // POST: Users/Registration
+        // POST: Users/Register
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Registration([Bind("UserId,Username,PasswordHash,FullName")] User user)
+        public async Task<IActionResult> Register([Bind("UserId,Username,PasswordHash,FullName")] User user)
         {
             if (ModelState.IsValid)
             {   
