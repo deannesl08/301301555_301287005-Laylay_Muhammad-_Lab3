@@ -7,6 +7,7 @@
         // Define excluded paths within the middleware
         private readonly string[] _excludedPaths = new[]
         {
+        "/",
         "/Users/Login",
         "/Users/Register"
     };

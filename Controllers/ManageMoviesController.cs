@@ -28,7 +28,6 @@ public class ManageMoviesController : Controller
     {
         // Retrieve the UserId from the session
         var userId = HttpContext.Session.GetInt32("UserId");
-        Console.WriteLine("User: " + userId);
         if (userId==null)
         {
             ModelState.AddModelError(string.Empty, "User is not logged in.");
@@ -42,9 +41,6 @@ public class ManageMoviesController : Controller
     };
 
         var movies = await _dbContext.ScanAsync<Movie>(scanConditions).GetRemainingAsync();
-
-        // Print the user ID to the console for debugging
-        Console.WriteLine($"User ID: {userId}");
 
         return View(movies);
     }
