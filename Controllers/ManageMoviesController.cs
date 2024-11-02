@@ -7,8 +7,9 @@ using Amazon.S3.Transfer;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Runtime;
+using Microsoft.IdentityModel.Tokens;
 
-public class MoviesController : Controller
+public class ManageMoviesController : Controller
 {
     private readonly IDynamoDBContext _dbContext;
     private readonly IAmazonS3 _s3Client;
@@ -16,7 +17,7 @@ public class MoviesController : Controller
     private readonly string S3BucketPath = "https://movies-haneef.s3.us-east-1.amazonaws.com/";
 
 
-    public MoviesController(IDynamoDBContext dbContext, IAmazonS3 s3Client)
+    public ManageMoviesController(IDynamoDBContext dbContext, IAmazonS3 s3Client)
     {
         _dbContext = dbContext;
         _s3Client = s3Client;
@@ -25,16 +26,25 @@ public class MoviesController : Controller
     // GET: Movies
     public async Task<IActionResult> Index()
     {
-        // Retrieve the list of movies from DynamoDB
-        var movies = await _dbContext.ScanAsync<Movie>(new List<ScanCondition>()).GetRemainingAsync();
-
-        var username = HttpContext.Session.GetString("Username");
+        // Retrieve the UserId from the session
         var userId = HttpContext.Session.GetInt32("UserId");
+        Console.WriteLine("User: " + userId);
+        if (userId==null)
+        {
+            ModelState.AddModelError(string.Empty, "User is not logged in.");
+            return RedirectToAction("Login", "Users");
+        }
 
+        // Retrieve the list of movies from DynamoDB filtered by UploaderId
+        var scanConditions = new List<ScanCondition>
+    {
+        new ScanCondition("UploaderId", Amazon.DynamoDBv2.DocumentModel.ScanOperator.Equal, userId)
+    };
 
-        // Print the username and user ID to the console
+        var movies = await _dbContext.ScanAsync<Movie>(scanConditions).GetRemainingAsync();
+
+        // Print the user ID to the console for debugging
         Console.WriteLine($"User ID: {userId}");
-        Console.WriteLine($"Username: {username}");
 
         return View(movies);
     }
@@ -49,9 +59,6 @@ public class MoviesController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(CreateMovie createMovieModel)
     {
-
-        // Get the user id from the session
-        var userId = HttpContext.Session.GetString("UserId");
 
         bool isMovieFileInvalid = createMovieModel.MovieFile == null || createMovieModel.MovieFile.Length == 0;
         Console.WriteLine($"Is movie data Invalid: {isMovieFileInvalid}");
@@ -73,6 +80,15 @@ public class MoviesController : Controller
             return View(createMovieModel);
         }
 
+        // Get the user id from the session
+        var userId = HttpContext.Session.GetInt32("UserId");
+
+        if(userId == null)
+        {
+            return RedirectToAction("Login", "Users");
+        }
+
+
         // Create a new Movie entity from the CreateMovieModel
         var movie = new Movie
         {
@@ -83,7 +99,7 @@ public class MoviesController : Controller
             ReleaseTime = createMovieModel.ReleaseTime,
             Rating = createMovieModel.Rating,
             Comments = new List<Comment>(),
-            UploaderId = userId, // Set uploader ID
+            UploaderId = (int)userId, // Set uploader ID
             MovieHref = "", // Initialize, will be set after upload
             BannerImageHref = "" // Initialize, will be set after upload
         };
@@ -175,10 +191,18 @@ public class MoviesController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(string id)
     {
+
         var movie = await _dbContext.LoadAsync<Movie>(id);
         if (movie == null)
         {
             return NotFound();
+        }
+
+        // Check user permission to edit the movie
+        var permissionResult = VerifyIfUserHasPermissionToMovie(movie);
+        if (permissionResult != null)
+        {
+            return permissionResult;
         }
 
         ViewBag.MovieHref = movie.MovieHref;
@@ -213,6 +237,13 @@ public class MoviesController : Controller
         {
             ModelState.AddModelError(string.Empty, "Movie not found.");
             return View(editMovieModel);
+        }
+
+        // Check user permission to edit the movie
+        var permissionResult = VerifyIfUserHasPermissionToMovie(movie);
+        if (permissionResult != null)
+        {
+            return permissionResult;
         }
 
         // Update movie details
@@ -315,6 +346,13 @@ public class MoviesController : Controller
             return NotFound();
         }
 
+        // Check user permission to edit the movie
+        var permissionResult = VerifyIfUserHasPermissionToMovie(movie);
+        if (permissionResult != null)
+        {
+            return permissionResult;
+        }
+
         return View(movie);
     }
     // DELETE: Movies/Delete/{id}
@@ -327,14 +365,11 @@ public class MoviesController : Controller
             return NotFound();
         }
 
-        // Get the userId from the session
-        var userId = HttpContext.Session.GetString("UserId");
-
-        // Check if the userId matches the movie's userId
-        if (movie.UploaderId != userId)
+        // Check user permission to edit the movie
+        var permissionResult = VerifyIfUserHasPermissionToMovie(movie);
+        if (permissionResult != null)
         {
-            ModelState.AddModelError(string.Empty, "You are not authorized to delete this movie.");
-            return View("Delete", movie); ;
+            return permissionResult;
         }
 
         try
@@ -375,6 +410,20 @@ public class MoviesController : Controller
         }
 
     }
+
+
+    private IActionResult VerifyIfUserHasPermissionToMovie(Movie movie)
+    {
+        var userId = HttpContext.Session.GetInt32("UserId");
+        Console.WriteLine("Movie: " + (movie.UploaderId != userId) + ", " + movie.UploaderId);
+        if (userId == null || movie == null || movie.UploaderId != userId)
+        {
+            ModelState.AddModelError(string.Empty, "You do not have permission to delete this file.");
+            return RedirectToAction("Login", "Users");
+        }
+        return null;
+    }
+
 
 
 }

@@ -76,7 +76,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
                     Console.WriteLine("Login successful!");
 
                     // Redirect to the Movie controller's Index action
-                    return RedirectToAction("Index", "Movies");
+                    return RedirectToAction("Index", "ManageMovies");
                 }
                 else
                 {

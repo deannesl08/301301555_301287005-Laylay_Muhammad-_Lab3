@@ -21,7 +21,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Models
         public string Director { get; set; }
 
         public DateTime ReleaseTime { get; set; }
-        public string UploaderId { get; set; }
+        public int UploaderId { get; set; }
 
         public string MovieHref { get; set; }
 
