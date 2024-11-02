@@ -76,12 +76,12 @@
                                 @if (comment.PostedAt > DateTime.UtcNow.AddHours(-24) 
                                 && comment.UserId == currentUserId)
                                 {
-                                    <button class="btn btn-warning btn-sm ms-2" 
+                                    <button class="btn btn-warning btn-sm movie-edit-button ms-2" 
                                             data-bs-toggle="modal" 
                                             data-bs-target="#editCommentModal" 
                                             onclick="openEditCommentModal('@comment.CommentId', '@Model.MovieId', '@comment.Content', @comment.Rating)"
                                     >
-                                        Edit
+                                    <i class="fa-solid fa-pen action-space"></i>
                                     </button>
                                 }
                                 </div>
