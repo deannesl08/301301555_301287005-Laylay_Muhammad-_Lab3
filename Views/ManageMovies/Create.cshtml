@@ -4,58 +4,62 @@
     ViewData["Title"] = "Add Movie";
 }
 
-<div class="container mt-5">
-    <h1 class="text-center">Add New Movie</h1>
+<div class="add-container mt-5">
+    <div class="add-box">
+        <h1 class="text-center">Add New Movie</h1>
 
-    <form asp-action="Create" method="post" enctype="multipart/form-data">
-        @Html.AntiForgeryToken()
+        <form asp-action="Create" method="post" enctype="multipart/form-data" class="add-form">
 
-        <div class="mb-3">
-            <label asp-for="Title" class="form-label"></label>
-            <input asp-for="Title" class="form-control" />
-            <span asp-validation-for="Title" class="text-danger"></span>
-        </div>
+            @Html.AntiForgeryToken()
 
-        <div class="mb-3">
-            <label asp-for="Genre" class="form-label"></label>
-            <input asp-for="Genre" class="form-control" />
-            <span asp-validation-for="Genre" class="text-danger"></span>
-        </div>
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label add-form-label"></label>
+                <input asp-for="Title" class="form-control add-form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="Director" class="form-label"></label>
-            <input asp-for="Director" class="form-control" />
-            <span asp-validation-for="Director" class="text-danger"></span>
-        </div>
+            <div class="mb-3">
+                <label asp-for="Genre" class="form-label add-form-label"></label>
+                <input asp-for="Genre" class="form-control add-form-control" />
+                <span asp-validation-for="Genre" class="text-danger"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="ReleaseTime" class="form-label"></label>
-            <input asp-for="ReleaseTime" type="datetime-local" class="form-control" />
-            <span asp-validation-for="ReleaseTime" class="text-danger"></span>
-        </div>
+            <div class="mb-3">
+                <label asp-for="Director" class="form-label add-form-label"></label>
+                <input asp-for="Director" class="form-control add-form-control" />
+                <span asp-validation-for="Director" class="text-danger"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="Rating" class="form-label"></label>
-            <input asp-for="Rating" type="number" step="0.1" class="form-control" />
-            <span asp-validation-for="Rating" class="text-danger"></span>
-        </div>
+            <div class="mb-3">
+                <label asp-for="ReleaseTime" class="form-label add-form-label">Release Time</label>
+                <input asp-for="ReleaseTime" type="datetime-local" class="form-control add-form-control" />
+                <span asp-validation-for="ReleaseTime" class="text-danger"></span>
+            </div>
 
-        <div class="mb-3">
-            <label for="MovieFile" class="form-label">Upload Movie</label>
-            <input type="file" name="MovieFile" class="form-control" />
-            <span asp-validation-for="MovieFile" class="text-danger"></span>
-        </div>
+            <div class="mb-3">
+                <label asp-for="Rating" class="form-label add-form-label"></label>
+                <input asp-for="Rating" type="number" step="0.1" class="form-control add-form-control" />
+                <span asp-validation-for="Rating" class="text-danger"></span>
+            </div>
 
-
-        <div class="mb-3">
-            <label for="BannerImageFile" class="form-label">Upload Banner Image</label>
-            <input type="file" name="BannerImageFile" class="form-control" />
-            <span asp-validation-for="BannerImageFile" class="text-danger"></span>
-        </div>
+            <div class="mb-3">
+                <label for="MovieFile" class="form-label add-form-label">Upload Movie</label>
+                <input type="file" name="MovieFile" class="form-control add-form-control" />
+                <span asp-validation-for="MovieFile" class="text-danger"></span>
+            </div>
 
 
-        <button type="submit" class="btn btn-primary">Add Movie</button>
-    </form>
+            <div class="mb-3">
+                <label for="BannerImageFile" class="form-label add-form-label">Upload Banner Image</label>
+                <input type="file" name="BannerImageFile" class="form-control add-form-control" />
+                <span asp-validation-for="BannerImageFile" class="text-danger"></span>
+            </div>
+
+
+            <button type="submit" class="btn btn-primary">Add Movie</button>
+        </form>
+    </div>
+    
 </div>
 
 @section Scripts {
