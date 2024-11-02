@@ -33,71 +33,87 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
             return View(movie);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddComment(string movieId, [FromBody] CommentRequest commentInput)
+        public class CommentRequest
         {
-
-
-            if (string.IsNullOrWhiteSpace(commentInput.Content))
-            {
-                return Json(new { success = false, message = "Comment cannot be empty." });
-            }
-
-            var movie = await _dbContext.LoadAsync<Movie>(movieId);
-            if (movie == null)
-            {
-                return Json(new { success = false, message = "Movie not found." });
-            }
-
-            var newComment = new Comment
-            {
-                CommentId = Guid.NewGuid().ToString(),
-                UserId = HttpContext.Session.GetInt32("UserId").ToString(),
-                Content = commentInput.Content,
-                PostedAt = DateTime.UtcNow
-            };
-
-            movie.Comments.Add(newComment);
-            await _dbContext.SaveAsync(movie); // Update movie with new comment
-
-            return Json(new { success = true });
+            public required string Content { get; set; }
+            public required double Rating { get; set; }
+            public required string MovieId { get; set; } // Add this property
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddRating(string movieId, int rating)
+        public async Task<IActionResult> AddComment(CommentRequest comment)
         {
             // Fetch the movie from DynamoDB using the movieId
-            var movie = await _dbContext.LoadAsync<Movie>(movieId);
+            var movie = await _dbContext.LoadAsync<Movie>(comment.MovieId);
             if (movie == null)
             {
-                ModelState.AddModelError("rating", "Movie is no longer available!");
-                ViewData["MovieNotFound"] = true; 
-                return View("Index", null);
+                TempData["MovieNotFound"] = true;
+                return RedirectToAction("Index", "Movie", null);
             }
 
             // Validate the inputs
-            if (string.IsNullOrEmpty(movieId) || rating < 1 || rating > 10)
+            if (string.IsNullOrWhiteSpace(comment.Content) || comment.Rating < 1 || comment.Rating > 10)
             {
-                ModelState.AddModelError("rating", "Please select a valid rating between 1 and 10.");
-                return View("Index", movie); // Return the movie object to the view for rendering
+                TempData["CommentError"] = "Please enter a valid rating between 1 and 10, and ensure the comment field is not empty.";
+                return RedirectToAction("Index", "Movie", new { movieId = movie.MovieId });
             }
 
-            // Update the ratings
-            if (movie.Ratings == null)
+            // Add the new comment
+            var newComment = new Comment
             {
-                movie.Ratings = new List<double>();
-            }
+                CommentId = Guid.NewGuid().ToString(),
+                UserId = HttpContext.Session.GetInt32("UserId") ?? 0,
+                UserName = HttpContext.Session.GetString("FullName"),
+                Content = comment.Content,
+                Rating = comment.Rating,
+                PostedAt = DateTime.UtcNow
+            };
+            movie.Comments.Add(newComment);
 
-            movie.Ratings.Add(rating);
-            movie.Rating = movie.Ratings.Average(); // Update the average rating
+            // Update the average rating
+            movie.Rating = Math.Round(movie.Comments.Average(c => c.Rating), 1);
 
             // Save the updated movie back to DynamoDB
             await _dbContext.SaveAsync(movie);
 
-            return View("Index", movie); // Return the updated movie object
+            return RedirectToAction("Index", "Movie", new { movieId = movie.MovieId });
         }
 
 
+        [HttpPost]
+        public async Task<IActionResult> EditComment(string movieId, string commentId, int rating, string content)
+        {
+
+            // Fetch the movie from DynamoDB using the movieId
+            var movie = await _dbContext.LoadAsync<Movie>(movieId);
+            if (movie == null)
+            {
+                TempData["MovieNotFound"] = true;
+                return RedirectToAction("Index", "Movie", null);
+            }
+
+            // Find the comment to edit
+            var comment = movie.Comments.FirstOrDefault(c => c.CommentId == commentId);
+            if (comment == null)
+            {
+                TempData["CommentNotFound"] = true;
+                return RedirectToAction("Index", "Movie", new { movieId });
+            }
+
+            // Update the comment's content and rating
+            comment.Content = content;
+            comment.Rating = rating;
+            comment.PostedAt = DateTime.UtcNow;
+
+            // Recalculate the average rating
+            movie.Rating = Math.Round(movie.Comments.Average(c => c.Rating), 1);
+
+            // Save the updated movie back to DynamoDB
+            await _dbContext.SaveAsync(movie);
+
+            return RedirectToAction("Index", "Movie", new { movieId });
+
+        }
 
 
     }

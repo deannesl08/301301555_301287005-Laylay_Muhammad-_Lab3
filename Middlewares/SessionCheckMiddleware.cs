@@ -7,7 +7,6 @@
         // Define excluded paths within the middleware
         private readonly string[] _excludedPaths = new[]
         {
-        "/Home/Index",
         "/Users/Login",
         "/Users/Register"
         };
@@ -23,7 +22,7 @@
             if (_excludedPaths.All(path => !context.Request.Path.Value.StartsWith(path, StringComparison.OrdinalIgnoreCase)))
             {
                 // If session ID is not present, redirect to login
-                if (context.Session.GetString("UserId") == null)
+                if (context.Session.GetInt32("UserId") == null)
                 {
                     context.Response.Redirect("/Users/Login");
                     return; // Short-circuit the pipeline

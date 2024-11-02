@@ -30,9 +30,6 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Models
         // Rating attribute for secondary index, stores the avg. rating value
         public double Rating { get; set; }
 
-        public List<double> Ratings { get; set; } = new List<double>();
-
-
         // List of comments (map or list of maps in DynamoDB)
         public List<Comment> Comments { get; set; } = new List<Comment>();
 
@@ -40,8 +37,11 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Models
     public class Comment
     {
         public string CommentId { get; set; }  // Unique ID for each comment
-        public string UserId { get; set; }     // ID of the user who posted the comment
+        public int UserId { get; set; }
+        public string UserName { get; set; }
         public string Content { get; set; }
         public DateTime PostedAt { get; set; }
+
+        public double Rating { get; set; }
     }
 }

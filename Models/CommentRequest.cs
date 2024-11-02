@@ -2,6 +2,8 @@
 {
     public class CommentRequest
     {
+        public required string MovieId { get; set; }
         public required string Content { get; set; }
+        public required double Rating { get; set; }
     }
 }

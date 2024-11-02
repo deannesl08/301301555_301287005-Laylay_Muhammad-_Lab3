@@ -71,12 +71,13 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
 
                     // Successful login, store user information in session if needed
                     HttpContext.Session.SetString("Username", existingUser.Username);
+                    HttpContext.Session.SetString("FullName", existingUser.FullName);
                     HttpContext.Session.SetInt32("UserId", existingUser.UserId);
 
                     Console.WriteLine("Login successful!");
 
                     // Redirect to the Movie controller's Index action
-                    return RedirectToAction("Index", "ManageMovies");
+                    return RedirectToAction("Index", "Home");
                 }
                 else
                 {

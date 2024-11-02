@@ -28,11 +28,6 @@ public class ManageMoviesController : Controller
     {
         // Retrieve the UserId from the session
         var userId = HttpContext.Session.GetInt32("UserId");
-        //if (userId==null)
-        //{
-        //    ModelState.AddModelError(string.Empty, "User is not logged in.");
-        //    return RedirectToAction("Login", "Users");
-        //}
 
         // Retrieve the list of movies from DynamoDB filtered by UploaderId
         var scanConditions = new List<ScanCondition>
@@ -93,7 +88,6 @@ public class ManageMoviesController : Controller
             Director = createMovieModel.Director,
             ReleaseTime = createMovieModel.ReleaseTime,
             Rating = createMovieModel.Rating,
-            Ratings = new List<double> { createMovieModel.Rating },
             Comments = new List<Comment>(),
             UploaderId = (int)userId, // Set uploader ID
             MovieHref = "", // Initialize, will be set after upload
@@ -248,7 +242,6 @@ public class ManageMoviesController : Controller
         movie.Director = editMovieModel.Director;
         movie.ReleaseTime = editMovieModel.ReleaseTime;
         movie.Rating = editMovieModel.Rating;
-        movie.Ratings = new List<double> { movie.Rating };
 
         try
         {
