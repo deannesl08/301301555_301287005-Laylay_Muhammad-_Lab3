@@ -1,13 +1,12 @@
 ﻿.user-container {
-    background-image: url('../images/background.jpg');
-    background-size: cover;
+    background: linear-gradient(rgb(0 0 0 / 50%), rgb(19 1 1 / 50%)), url(../images/background.jpg);
     background-position: center;
-    background-repeat: repeat-y;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     padding: 2rem 0;
+    background-size:cover;
 }
 .user-box {
     background-color: #ffffff;
@@ -286,7 +285,15 @@ button {
     color: #e6e6e6 !important;
 }
 
-.movie-card{
+.movie-card {
     text-align: left;
     text-decoration: none;
+    border: none;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+
+.edit-movie-button {
+    border-radius: 50%;
+    width: 32px;
 }
