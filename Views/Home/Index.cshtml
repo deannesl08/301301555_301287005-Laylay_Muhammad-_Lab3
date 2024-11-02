@@ -41,16 +41,16 @@
         @foreach (var movie in Model)
         {
             <div class="col-md-4 mb-4">
-                <div class="card">
-                    <a href="@Url.Action("Index", "Movie", new { movieId = movie.MovieId })">
-                        <img src="@movie.BannerImageHref" class="card-img-top" alt="@movie.Title" />
-                    </a>
+                <a class="card text-left movie-card" href="@Url.Action("Index", "Movie", new { movieId = movie.MovieId })">
+                    <img src="@movie.BannerImageHref" class="card-img-top" alt="@movie.Title" height="180">
                     <div class="card-body">
                         <h5 class="card-title">@movie.Title</h5>
-                        <p class="card-text">Rating: @movie.Rating</p>
-                        <p class="card-text">Genre: @movie.Genre</p>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted d-flex align-items-center"><i class="fa-solid fa-star"></i> @movie.Rating / 10</small>
+                            <small class="text-muted">Genre: @movie.Genre</small>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
         }
     </div>

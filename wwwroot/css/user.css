@@ -39,7 +39,7 @@ h2 {
 }
 
 .styled-table thead tr {
-    background-color: #36304A;
+    background-color: #3d4955;
     color: #ffffff;
     text-align: left;
 }
@@ -125,13 +125,6 @@ h2 {
     color: #B8B9B8;
 }
 
-.add-form-control {
-    border-color: #393937;
-    background-color: #212529;
-    border-radius: 5px;
-    color: #e6e6e6;
-}
-
 .add-form {
     color: white;
     padding: 30px;
@@ -179,11 +172,11 @@ h2 {
     color: #B8B9B8;
 }
 
-.edit-form-control {
-    border-color: #393937;
-    background-color: #212529;
-    border-radius: 5px;
-    color: #e6e6e6;
+.form-control {
+    border-color: #393937 !important;
+    background-color: #212529 !important;
+    border-radius: 5px !important;
+    color: #e6e6e6 !important;
 }
  /*
 .delete-container {
@@ -284,4 +277,16 @@ button {
 .alert-danger {
     font-size: 0.9rem;
     margin-top: 1rem;
+}
+
+.form-control {
+    border-color: #393937 !important;
+    background-color: #212529 !important;
+    border-radius: 5px !important;
+    color: #e6e6e6 !important;
+}
+
+.movie-card{
+    text-align: left;
+    text-decoration: none;
 }
