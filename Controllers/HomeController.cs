@@ -5,6 +5,7 @@ using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.S3;
 using Azure;
+using Humanizer.Localisation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -34,18 +35,40 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // Retrieve all movies from the DynamoDB table
-            var allMovies = await _dbContext.ScanAsync<Movie>(new List<ScanCondition>()).GetRemainingAsync();
+            // Assuming you want to perform a scan to filter by genre
+            var queryRequest = new QueryRequest
+            {
+                TableName = "Movies",
+                IndexName = "RatingIndex",
+                KeyConditionExpression = "Category = :category AND Rating >= :rating", 
+                ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+                        {
+                            { ":category", new AttributeValue { S = "Movies" } },
+                            { ":rating", new AttributeValue { N = "1" } }
+                        },
+                ScanIndexForward = false,
+                Limit = 6
+            };
 
-            return View(allMovies);
+            // Map response items to a list of Movie objects
+            var queryResponse = await _dynamoDbClient.QueryAsync(queryRequest);
+
+            // Map response items to a list of Movie objects
+            var movies = queryResponse.Items.Select(item => new Movie
+            {
+                Title = item["Title"].S,
+                Rating = double.Parse(item["Rating"].N, CultureInfo.InvariantCulture),
+                Genre = item["Genre"].S,
+                BannerImageHref = item.ContainsKey("BannerImageHref") ? item["BannerImageHref"].S : string.Empty
+            }).ToList();
+
+            return View(movies);
         }
 
         [HttpGet]
-        [HttpGet]
-        public async Task<IActionResult> Search(string genre, string rating)
+        public async Task<IActionResult> SearchByRating(string rating)
         {
             // Log the input values to the console
-            _logger.LogInformation($"In Search controller: Rating = {rating}, Genre = {genre}");
 
             // Initialize a list to hold the filtered movies
             List<Movie> movies = new List<Movie>();
@@ -62,9 +85,10 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
                         KeyConditionExpression = "Category = :category AND Rating >= :rating", // Test with an exact match
                         ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                         {
-                        { ":category", new AttributeValue { S = "Movies" } },
-                        { ":rating", new AttributeValue { N = rating } }    
-                    },
+                            { ":category", new AttributeValue { S = "Movies" } },
+                            { ":rating", new AttributeValue { N = rating } }    
+                        },
+                        ScanIndexForward = false,
 
                     };
                     var queryResponse = await _dynamoDbClient.QueryAsync(queryRequest);
@@ -78,7 +102,29 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
                         BannerImageHref = item.ContainsKey("BannerImageHref") ? item["BannerImageHref"].S : string.Empty
                     }).ToList();
                 }
-                else if (!string.IsNullOrEmpty(genre))
+            }
+            catch (Exception ex)
+            {
+                // Log detailed error message
+                _logger.LogError($"Error querying DynamoDB: {ex.Message}");
+                // You can return an error view or an empty list based on your error handling strategy
+            }
+
+            return View("Index", movies);
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> SearchByGenre(string genre)
+        {
+            // Log the input values to the console
+
+            // Initialize a list to hold the filtered movies
+            List<Movie> movies = new List<Movie>();
+
+            try
+            {
+                if (!string.IsNullOrEmpty(genre))
                 {
                     // Assuming you want to perform a scan to filter by genre
                     var searchResponse = await _dynamoDbClient.ScanAsync(new ScanRequest
@@ -101,6 +147,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
                         Genre = item.ContainsKey("Genre") ? item["Genre"].S : "General", // Default if not present
                         BannerImageHref = item.ContainsKey("BannerImageHref") ? item["BannerImageHref"].S : string.Empty
                     }).ToList();
+
                 }
             }
             catch (Exception ex)
@@ -112,7 +159,6 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
 
             return View("Index", movies);
         }
-
 
 
         public IActionResult Privacy()

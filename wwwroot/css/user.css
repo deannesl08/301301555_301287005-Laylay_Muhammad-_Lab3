@@ -171,7 +171,7 @@ h2 {
     color: #B8B9B8;
 }
 
-.form-control {
+.form-control, .form-select {
     border-color: #393937 !important;
     background-color: #212529 !important;
     border-radius: 5px !important;
@@ -296,4 +296,8 @@ button {
 .edit-movie-button {
     border-radius: 50%;
     width: 32px;
+}
+
+.no-result-msg{
+    font-size: 24px;
 }
