@@ -56,6 +56,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
             // Map response items to a list of Movie objects
             var movies = queryResponse.Items.Select(item => new Movie
             {
+                MovieId = item["MovieId"].S,
                 Title = item["Title"].S,
                 Rating = double.Parse(item["Rating"].N, CultureInfo.InvariantCulture),
                 Genre = item["Genre"].S,
@@ -96,6 +97,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
                     // Map response items to a list of Movie objects
                     movies = queryResponse.Items.Select(item => new Movie
                     {
+                        MovieId = item["MovieId"].S,
                         Title = item["Title"].S,
                         Rating = double.Parse(item["Rating"].N, CultureInfo.InvariantCulture), // Ensure proper parsing of double
                         Genre = item["Genre"].S,
@@ -142,6 +144,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
                     // Map response items to a list of Movie objects
                     movies = searchResponse.Items.Select(item => new Movie
                     {
+                        MovieId = item["MovieId"].S,
                         Title = item["Title"].S,
                         Rating = double.Parse(item["Rating"].N),
                         Genre = item.ContainsKey("Genre") ? item["Genre"].S : "General", // Default if not present

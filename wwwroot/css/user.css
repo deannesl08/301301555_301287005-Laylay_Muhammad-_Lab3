@@ -293,11 +293,15 @@ button {
 }
 
 
-.edit-movie-button {
+.movie-edit-button {
     border-radius: 50%;
     width: 32px;
 }
 
 .no-result-msg{
     font-size: 24px;
+}
+
+.modal-header, .modal-footer {
+    border-color: #393937 !important;
 }
