@@ -33,6 +33,9 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Models
         // List of comments (map or list of maps in DynamoDB)
         public List<Comment> Comments { get; set; } = new List<Comment>();
 
+        [DynamoDBProperty]
+        public string Category { get; set; } = "Movies";
+
     }
     public class Comment
     {
