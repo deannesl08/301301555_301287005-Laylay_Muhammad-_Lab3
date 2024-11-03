@@ -32,3 +32,8 @@ ul{
     transform: translateX(-50%);
     z-index:1000;
 }
+
+.movie-app-header{
+    position: sticky;
+    top:0;
+}

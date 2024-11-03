@@ -7,7 +7,7 @@
 }
 
 <div class="user-container">
-    <div class="user-box">
+    <div class="user-box dark-theme">
         <h2 class="text-center mb-4">Register</h2>
         <form asp-action="Register" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -27,12 +27,9 @@
                 <span asp-validation-for="PasswordHash" class="text-danger"></span>
             </div>
             <input type="submit" value="Register" class="btn btn-success w100 p-2" />
-            <p class="text-center m2">
+            <p class="text-center mt-2">
                 Already have an account? <a asp-asp-controller="User" asp-action="Login" class="text-decoration-none">Login</a>
             </p>
-            <div class="text-center">
-                <a asp-controller="Home" asp-action="Index" class="text-decoration-none mt-3">Back</a>
-            </div>
         </form>
     </div>
 </div>
