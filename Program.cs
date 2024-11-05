@@ -4,14 +4,23 @@ using Amazon.DynamoDBv2;
 using Amazon.S3;
 using Amazon.DynamoDBv2.DataModel;
 using _301301555_301287005_Laylay_Muhammad__Lab3.Middlewares;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDbContext<MovieappContext>(options => options.UseSqlServer(
-    builder.Configuration.GetConnectionString("Connection2RDS")));
+// Add connection to parameter store
+builder.Configuration.AddSystemsManager("/CineQuest", 
+    new Amazon.Extensions.NETCore.Setup.AWSOptions { Region = Amazon.RegionEndpoint.USEast1 });
+
+// Add RDS connection
+var dbConnectionString = new SqlConnectionStringBuilder(builder.Configuration.GetConnectionString("Connection2RDS"));
+dbConnectionString.UserID = builder.Configuration["DbUser"];
+dbConnectionString.Password = builder.Configuration["DbPassword"];
+
+builder.Services.AddDbContext<MovieappContext>(options => options.UseSqlServer(dbConnectionString.ConnectionString));
 
 // Add AWS services
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions("AWS"));
