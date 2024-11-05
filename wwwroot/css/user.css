@@ -305,3 +305,27 @@ button {
 .modal-header, .modal-footer {
     border-color: #393937 !important;
 }
+
+.m-toast-fixed {
+    position: fixed;
+    top: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+.movie-app-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+ul {
+    list-style: none;
+}
+
+.validation-summary-errors{
+    ul{
+          padding: 0;
+      }
+}

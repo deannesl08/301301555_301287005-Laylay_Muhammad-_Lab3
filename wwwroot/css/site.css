@@ -24,16 +24,3 @@ body {
 ul{
     list-style: none;
 }
-
-.m-toast-fixed{
-    position:fixed;
-    top: 32px;
-    left:50%;
-    transform: translateX(-50%);
-    z-index:1000;
-}
-
-.movie-app-header{
-    position: sticky;
-    top:0;
-}

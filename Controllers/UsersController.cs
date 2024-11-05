@@ -21,7 +21,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
         // GET: Users
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Users.ToListAsync());
+            return RedirectToAction("Index", "Home");
         }
 
         // GET: Users/Details/5
@@ -39,7 +39,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
                 return NotFound();
             }
 
-            return View(user);
+            return RedirectToAction("Index", "Home");
         }
 
         // GET: Users/Login
@@ -81,7 +81,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt!");
+                    ModelState.AddModelError(string.Empty, "Invalid login credentials!");
                 }
             }
 
@@ -100,9 +100,6 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
             // Print the username and user ID to the console
             Console.WriteLine($"Successfully logout!");
 
-            Console.WriteLine($"User ID: {userId}");
-            Console.WriteLine($"Username: {username}");
-
             return RedirectToAction("Index", "Home"); // Redirect to home or any other page
         }
 
@@ -120,6 +117,13 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register([Bind("UserId,Username,PasswordHash,FullName")] User user)
         {
+            // Check if a user with the same username already exists
+            if (UserExists(user.Username))
+            {
+                TempData["RegisterError"] = "Username already exists.";
+                return View(user);
+            }
+
             if (ModelState.IsValid)
             {   
                 _context.Add(user);
@@ -142,7 +146,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
             {
                 return NotFound();
             }
-            return View(user);
+            return RedirectToAction("Index", "Home");
         }
 
         // POST: Users/Edit/5
@@ -177,7 +181,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(user);
+            return RedirectToAction("Index", "Home");
         }
 
         // GET: Users/Delete/5
@@ -195,7 +199,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
                 return NotFound();
             }
 
-            return View(user);
+            return RedirectToAction("Index", "Home");
         }
 
         // POST: Users/Delete/5
@@ -203,6 +207,7 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            return RedirectToAction("Index", "Home");
             var user = await _context.Users.FindAsync(id);
             if (user != null)
             {
@@ -210,12 +215,17 @@ namespace _301301555_301287005_Laylay_Muhammad__Lab3.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Home");
         }
 
         private bool UserExists(int id)
         {
             return _context.Users.Any(e => e.UserId == id);
+        }
+
+        private bool UserExists(string userName)
+        {
+            return _context.Users.Any(e => e.Username == userName);
         }
     }
 }
